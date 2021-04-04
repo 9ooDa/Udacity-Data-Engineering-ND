@@ -8,6 +8,20 @@ time_table_drop = "DROP TABLE IF EXISTS time"
 
 # CREATE TABLES
 
+songplay_table_create = ("""
+    CREATE TABLE IF NOT EXISTS songplays (
+        songplay_id SERIAL PRIMARY KEY, 
+        start_time TIMESTAMP REFERENCES time(start_time), 
+        user_id INT REFERENCES users(user_id),
+        level VARCHAR, 
+        song_id VARCHAR REFERENCES songs(song_id), 
+        artist_id VARCHAR REFERENCES artists(artist_id),
+        session_id INT, 
+        location VARCHAR, 
+        user_agent VARCHAR
+    );
+""")
+
 user_table_create = ("""
     CREATE TABLE IF NOT EXISTS users (
         user_id INT NOT NULL PRIMARY KEY, 
@@ -46,26 +60,20 @@ time_table_create = ("""
         week INT, 
         month INT, 
         year INT,
-        weekday VARCHAR
-    );
-""")
-
-songplay_table_create = ("""
-    CREATE TABLE IF NOT EXISTS songplays (
-        songplay_id INT NOT NULL PRIMARY KEY, 
-        start_time TIMESTAMP REFERENCES time(start_time), 
-        user_id INT NOT NULL REFERENCES users(user_id),
-        level VARCHAR, 
-        song_id VARCHAR REFERENCES songs(song_id), 
-        artist_id VARCHAR REFERENCES artists(artist_id),
-        session_id INT, 
-        location VARCHAR, 
-        user_agent VARCHAR,
+        weekday INT
     );
 """)
 
 
 # INSERT RECORDS
+
+songplay_table_insert = ("""
+    INSERT INTO songplays (start_time, user_id, level, song_id, \
+                          artist_id, session_id, location, user_agent) \
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    ON CONFLICT (songplay_id)
+    DO NOTHING;
+""")
 
 user_table_insert = ("""
     INSERT INTO users (user_id, first_name, last_name, gender, level) \
@@ -96,22 +104,15 @@ time_table_insert = ("""
     DO NOTHING;
 """)
 
-songplay_table_insert = ("""
-    INSERT INTO songplays (songplay_id, start_time, user_id, level, song_id, \
-                          artist_id, session_id, location, user_agent) \
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-    ON CONFLICT (songplay_id)
-    DO NOTHING;
-""")
-
 # FIND SONGS
 
 song_select = ("""
-    SELECT title
-    FROM songplays JOIN songs ON songplays.song_id=songs.song_id;
+    SELECT song_id, a.artist_id
+    FROM artists AS a JOIN songs AS s ON a.artist_id=s.artist_id
+    WHERE s.title = %s AND a.name = %s AND s.duration = %s;
 """)
 
 # QUERY LISTS
 
-create_table_queries = [user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
-drop_table_queries = [user_table_drop, song_table_drop, artist_table_drop, time_table_drop, songplay_table_drop]
+create_table_queries = [user_table_create, artist_table_create, song_table_create, time_table_create, songplay_table_create]
+drop_table_queries = [user_table_create, artist_table_create,song_table_create, time_table_create, songplay_table_create]
