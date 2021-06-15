@@ -36,11 +36,11 @@ staging_events_table_create= ("""
         location VARCHAR,
         method VARCHAR,
         page VARCHAR,
-        reistration NUMERIC,
+        reistration FLOAT,
         sessionId INT,
-        song NUMERIC,
+        song VARCHAR,
         status INT,
-        ts TIMESTAMP,
+        ts BIGINT,
         userAgent VARCHAR,
         userID INT        
     );
@@ -138,7 +138,8 @@ staging_songs_copy = ("""
 songplay_table_insert = ("""
     INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, 
                             user_agent)
-    SELECT DISTINCT se.start_time, se.user_id, se.level, se.song_id, se.artist_id, se.session_id, se.location, se.user_agent
+    SELECT DISTINCT TIMESTAMP 'epoch' + (se.ts / 1000) * INTERVAL '1 second' as start_time, se.userID, se.level, 
+                    ss.song_id, ss.artist_id, se.sessionId, se.location, se.userAgent
     FROM staging_events AS se JOIN staging_songs AS ss ON (se.artist = ss.artist_name AND se.song = ss.title)
     WHERE se.page = 'NextSong';
 """)
@@ -146,25 +147,29 @@ songplay_table_insert = ("""
 user_table_insert = ("""
     INSERT INTO users (user_id, first_name, last_name, gender, level)
     SELECT DISTINCT userID, firstName, lastName, gender, level
-    FROM staging_events;
+    FROM staging_events
+    WHERE userID IS NOT NULL;
 """)
 
 song_table_insert = ("""
     INSERT INTO songs (song_id, title, artist_id, year, duration)
     SELECT DISTINCT song_id, title, artist_id, year, duration
-    FROM staging_songs;
+    FROM staging_songs
+    WHERE song_id IS NOT NULL;
 """)
 
 artist_table_insert = ("""
     INSERT INTO artists (artist_id, name, location, latitude, longitude)
-    SELECT DISTICT artist_id, artist_name, artist_location, artist_latitude, artist_longitude
-    FROM staging_songs;
+    SELECT DISTINCT artist_id, artist_name, artist_location, artist_latitude, artist_longitude
+    FROM staging_songs
+    WHERE artist_id IS NOT NULL;
 """)
 
 time_table_insert = ("""
     INSERT INTO time (start_time, hour, day, week, month, year, weekday)
-    SELECT DISTINCT ts, EXTRACT(hour from ts), EXTRACT(day from ts), EXTRACT(week from ts), EXTRACT(month from ts), 
-                    EXTRACT(year from ts), EXTRACT(weekday from ts)
+    SELECT DISTINCT TIMESTAMP 'epoch' + (ts / 1000) * INTERVAL '1 second' AS start_time, EXTRACT(hour from start_time), 
+                    EXTRACT(day from start_time), EXTRACT(week from start_time), EXTRACT(month from start_time), 
+                    EXTRACT(year from start_time), EXTRACT(weekday from start_time)
     FROM staging_events
     WHERE page = 'NextSong';
 """)
