@@ -63,12 +63,12 @@ staging_songs_table_create = ("""
 
 songplay_table_create = ("""
     CREATE TABLE IF NOT EXISTS songplays (
-        songplay_id IDENTITY(0,1) sortkey, 
-        start_time REFERENCES time(start_time), 
+        songplay_id INT IDENTITY(0,1) PRIMARY KEY sortkey, 
+        start_time TIMESTAMP REFERENCES time(start_time), 
         user_id INT REFERENCES users(user_id) distkey,
         level VARCHAR, 
         song_id VARCHAR REFERENCES songs(song_id), 
-        artist_id VARCHAR REFERENCES artists(artist_id
+        artist_id VARCHAR REFERENCES artists(artist_id),
         session_id INT, 
         location VARCHAR, 
         user_agent VARCHAR
@@ -77,7 +77,7 @@ songplay_table_create = ("""
 
 user_table_create = ("""
     CREATE TABLE IF NOT EXISTS users (
-        user_id INT distkey sortkey, 
+        user_id INT PRIMARY KEY distkey sortkey, 
         first_name VARCHAR, 
         last_name VARCHAR,
         gender VARCHAR, 
@@ -87,7 +87,7 @@ user_table_create = ("""
 
 song_table_create = ("""
     CREATE TABLE IF NOT EXISTS songs (
-        song_id VARCHAR sortkey, 
+        song_id VARCHAR PRIMARY KEY sortkey, 
         title VARCHAR, 
         artist_id VARCHAR REFERENCES artists(artist_id),
         year INT, 
@@ -97,7 +97,7 @@ song_table_create = ("""
 
 artist_table_create = ("""
     CREATE TABLE IF NOT EXISTS artists (
-        artist_id VARCHAR sortkey, 
+        artist_id VARCHAR PRIMARY KEY sortkey, 
         name VARCHAR, 
         location VARCHAR,
         latitude NUMERIC, 
@@ -107,7 +107,7 @@ artist_table_create = ("""
 
 time_table_create = ("""
     CREATE TABLE IF NOT EXISTS time (
-        start_time TIMESTAMP sortkey, 
+        start_time TIMESTAMP PRIMARY KEY sortkey, 
         hour INT, 
         day INT,
         week INT, 
@@ -171,7 +171,7 @@ time_table_insert = ("""
 
 # QUERY LISTS
 
-create_table_queries = [staging_events_table_create, staging_songs_table_create, songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
+create_table_queries = [staging_events_table_create, staging_songs_table_create, user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
 drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
 copy_table_queries = [staging_events_copy, staging_songs_copy]
 insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
