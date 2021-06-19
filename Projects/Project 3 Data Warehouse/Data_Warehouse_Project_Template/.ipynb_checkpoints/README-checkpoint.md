@@ -3,7 +3,7 @@ The data is residing in S3 and it's from the app `Sparkify`, a startup. From ana
 
 Data warehouse with AWS `Redshift` and `IAM role` is applied in this project in order to insert the data into the dimensional tables.
 ## Database Design
-![Dimensional Tables](/Image/schema_dwh.jpg)
+![Dimensional Tables](./Image/schema_dwh.jpg)
 
 As shown in the above diagram, the fact table is `songplays`, and the remaining tables are fact tables.
 ### Primary key in each table
